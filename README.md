@@ -1,4 +1,4 @@
-# Verilog Tic Tac Toe"
+# Verilog Tic Tac Toe
 
 This is an implementation of "Tic Tac Toe" in Verilog. It's a work in progress.
 Right now it runs under Verilator but eventually I want to synthesise it
