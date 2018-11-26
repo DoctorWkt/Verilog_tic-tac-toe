@@ -118,8 +118,7 @@ module ttt(i_clk);
       MAKE_X_MOVE: begin
 	if (bad_x_move)			// Could not find a move, this
 	  state <= ERROR_STATE;		// should never happen
-	else
-        begin
+	else begin
 	  board <= board | x_move_mask;	// Make the FPGA's move
 	  state <= CHECK_X_MOVE;
 	end
