@@ -3,6 +3,21 @@ use strict;
 use warnings;
 use Data::Dumper;
 
+# This code comes from a version of tic-tac-toe that I wrote for Minix. See
+# https://minnie.tuhs.org/cgi-bin/utree.pl?file=Minix2.0/src/commands/simple/ttt.c
+
+# Copyright 1988 by Warren Toomey	wkt@tuhs.org
+#
+# You may freely copy or distribute this code as long as this notice
+# remains intact.
+#
+# You may modify this code, as long as this notice remains intact, and
+# you add another notice indicating that the code has been modified.
+#
+# You may NOT sell this code or in any way profit from this code without
+# prior agreement from the author.
+# 
+
 # Static evaluator. Returns 100 if we have 3 in a row, -100 if they have 3
 # in a row or 0 if no winner. The board is an array of 10 chars, the zeroth
 # element is the player. Values are ' ' (empty), 'X' or 'O'.
