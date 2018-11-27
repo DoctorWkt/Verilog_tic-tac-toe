@@ -64,15 +64,31 @@ module user(i_clk, i_board, i_result, i_isdraw,
   assign square[9] = (i_board[1:0]== 2'b00) ? SP :
 		     (i_board[1:0]== 2'b01) ? O  : X;
 
+  // i_result values
+  localparam NONE = 0;
+  localparam XWIN = 1;
+  localparam OWIN = 2;
+
+  reg show_instructions;
+  initial show_instructions=1;
+
   always @(posedge i_clk) begin
-    if (i_needinput && !o_validmove_stb) begin
-      // Print the board out
+    // Show the instructions to the user
+    if (show_instructions) begin
+      $display("Enter a move (1 to 9), then Enter.");
+      show_instructions <=0;
+    end
+
+    // Print the board out when we need input or there is a result
+    if (i_result_stb || (i_needinput && !o_validmove_stb)) begin
       $display(" %c | %c | %c", square[1], square[2], square[3]);
       $display("---+---+---");
       $display(" %c | %c | %c", square[4], square[5], square[6]);
       $display("---+---+---");
       $display(" %c | %c | %c\n", square[7], square[8], square[9]);
+    end
 
+    if (i_needinput && !o_validmove_stb) begin
       // Get a character from the user. Need to hit Enter also.
       wide_char <= $fgetc(fh);
       o_move <= wide_char[3:0];
@@ -82,5 +98,14 @@ module user(i_clk, i_board, i_result, i_isdraw,
     // Drop the strobe on the next clock
     if (o_validmove_stb)
       o_validmove_stb <= 0;
+
+    // Announce a draw
+    if (i_result_stb && i_isdraw) $display("The game is a draw.");
+
+    // Announce a win
+    if (i_result_stb && i_result == XWIN) $display("The FPGA wins.");
+
+    // Announce a user win
+    if (i_result_stb && i_result == OWIN) $display("Somehow, you won.");
   end
 endmodule
