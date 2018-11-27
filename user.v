@@ -41,28 +41,24 @@ module user(i_clk, i_board, i_result, i_isdraw,
   // Convert each board bitpair into ASCII characters
   wire [7:0] square[1:9];
 
-  localparam SP = 8'h20;
-  localparam O  = 8'h4f;
-  localparam X  = 8'h58;
-
   assign square[1] = (i_board[17:16]== 2'b00) ? " " :
-		     (i_board[17:16]== 2'b01) ? O  : X;
-  assign square[2] = (i_board[15:14]== 2'b00) ? SP :
-		     (i_board[15:14]== 2'b01) ? O  : X;
-  assign square[3] = (i_board[13:12]== 2'b00) ? SP :
-		     (i_board[13:12]== 2'b01) ? O  : X;
-  assign square[4] = (i_board[11:10]== 2'b00) ? SP :
-		     (i_board[11:10]== 2'b01) ? O  : X;
-  assign square[5] = (i_board[9:8]== 2'b00) ? SP :
-		     (i_board[9:8]== 2'b01) ? O  : X;
-  assign square[6] = (i_board[7:6]== 2'b00) ? SP :
-		     (i_board[7:6]== 2'b01) ? O  : X;
-  assign square[7] = (i_board[5:4]== 2'b00) ? SP :
-		     (i_board[5:4]== 2'b01) ? O  : X;
-  assign square[8] = (i_board[3:2]== 2'b00) ? SP :
-		     (i_board[3:2]== 2'b01) ? O  : X;
-  assign square[9] = (i_board[1:0]== 2'b00) ? SP :
-		     (i_board[1:0]== 2'b01) ? O  : X;
+		     (i_board[17:16]== 2'b01) ? "O" : "X";
+  assign square[2] = (i_board[15:14]== 2'b00) ? " " :
+		     (i_board[15:14]== 2'b01) ? "O" : "X";
+  assign square[3] = (i_board[13:12]== 2'b00) ? " " :
+		     (i_board[13:12]== 2'b01) ? "O" : "X";
+  assign square[4] = (i_board[11:10]== 2'b00) ? " " :
+		     (i_board[11:10]== 2'b01) ? "O" : "X";
+  assign square[5] = (i_board[9:8]== 2'b00)   ? " " :
+		     (i_board[9:8]== 2'b01)   ? "O" : "X";
+  assign square[6] = (i_board[7:6]== 2'b00)   ? " " :
+		     (i_board[7:6]== 2'b01)   ? "O" : "X";
+  assign square[7] = (i_board[5:4]== 2'b00)   ? " " :
+		     (i_board[5:4]== 2'b01)   ? "O" : "X";
+  assign square[8] = (i_board[3:2]== 2'b00)   ? " " :
+		     (i_board[3:2]== 2'b01)   ? "O" : "X";
+  assign square[9] = (i_board[1:0]== 2'b00)   ? " " :
+		     (i_board[1:0]== 2'b01)   ? "O" : "X";
 
   // i_result values
   localparam NONE = 0;
