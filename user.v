@@ -10,24 +10,24 @@
 
 `default_nettype none
 module user(i_clk, i_board, i_result, i_isdraw,
-	    i_result_stb, i_needinput,
+	    i_result_stb, i_needinput, o_busy,
 	    o_move, o_validmove_stb);
 
-  input wire i_clk;
-  input wire [17:0] i_board;
-/* verilator lint_off UNUSED */
-  input wire [1:0] i_result;
-  input wire  i_isdraw;
-  input wire  i_result_stb;
-/* verilator lint_on UNUSED */
-  input wire  i_needinput;
-  output reg [3:0] o_move;
-  output reg o_validmove_stb;
+  input wire i_clk;		// Global clock
+  input wire [17:0] i_board;	// State of the game board
+  input wire [1:0] i_result;	// If non-zero, game result (win/lose)
+  input wire  i_isdraw;		// If non-zero, was a draw
+  input wire  i_result_stb;	// If non-zero, above 2 are valid
+  input wire  i_needinput;	// If non-zero, top level needs input
+  output reg o_busy;		// If non-zero, we are busy, ignore i_needinput
+  output reg [3:0] o_move;	// Move made by user, when o_validmove_stb
+  output reg o_validmove_stb;	// is high the move is valid
   initial o_validmove_stb=0;
+  initial o_busy=0;
 
   integer fh;			// The filehandle connected to stdin
 /* verilator lint_off UNUSED */
-  reg signed [15:0] wide_char;	// Storage for each char typed by user
+  reg [7:0] wide_char;		// Storage for each char typed by user
 /* verilator lint_on UNUSED */
 
   // Open stdin for reading
@@ -45,7 +45,7 @@ module user(i_clk, i_board, i_result, i_isdraw,
   localparam O  = 8'h4f;
   localparam X  = 8'h58;
 
-  assign square[1] = (i_board[17:16]== 2'b00) ? SP :
+  assign square[1] = (i_board[17:16]== 2'b00) ? " " :
 		     (i_board[17:16]== 2'b01) ? O  : X;
   assign square[2] = (i_board[15:14]== 2'b00) ? SP :
 		     (i_board[15:14]== 2'b01) ? O  : X;
@@ -95,9 +95,19 @@ module user(i_clk, i_board, i_result, i_isdraw,
       o_validmove_stb <= 1;
     end
 
-    // Drop the strobe on the next clock
-    if (o_validmove_stb)
+    // Drop the strobe on the next clock.
+    // Because we are using $display in this version of user.v,
+    // there is no real need for o_busy. However, Verilator 
+    // complains if we don't use it. So we toggle it below.
+    if (o_validmove_stb) begin
       o_validmove_stb <= 0;
+      o_busy <= 1;
+    end
+
+    // Drop the busy on the next clock
+    if (o_busy) begin
+      o_busy <= 0;
+    end
 
     // Announce a draw
     if (i_result_stb && i_isdraw) $display("The game is a draw.");

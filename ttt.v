@@ -48,6 +48,7 @@ module ttt(i_clk);
   reg need_userinput;			// High when we need a user move
   initial need_userinput=0;
 
+  wire user_busy;			// If true, can't do user I/O
   wire [3:0] user_move;			// Move made by the user
   wire usermove_stb;			// Strobe to indicate user move
 
@@ -62,7 +63,7 @@ module ttt(i_clk);
 
   // Wire up the user interface module
   user u1(i_clk, board, result, isdraw, result_stb,
-          need_userinput, user_move, usermove_stb);
+          need_userinput, user_busy, user_move, usermove_stb);
 
   // Wire up the X move module
   gen_xmove g1(board, x_move, result, isdraw);
@@ -89,7 +90,7 @@ module ttt(i_clk);
       end
 
       GET_USER_MOVE: begin
-	if (usermove_stb) begin		// We've got user input
+	if (!user_busy && usermove_stb) begin	// We've got user input
 	  need_userinput <= 0;		// Stop asking for it
 	  state <= MAKE_USER_MOVE;
 	end
