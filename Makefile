@@ -4,8 +4,6 @@ TOPMOD  := ttt
 VLOGFIL := $(TOPMOD).v
 VCDFILE := $(TOPMOD).vcd
 SIMPROG := $(TOPMOD)_tb
-RPTFILE := $(TOPMOD).rpt
-BINFILE := $(TOPMOD).bin
 SIMFILE := $(SIMPROG).cpp
 VDIRFB  := ./obj_dir
 COSIMS  := uartsim.cpp
@@ -50,6 +48,7 @@ $(VCDFILE): $(SIMPROG)
 clean:
 	rm -rf $(VDIRFB)/ $(SIMPROG) $(VCDFILE) ttt/ 
 	rm -f moves.txt gen_xmove.v
+	rm -f $(PROJ).blif $(PROJ).asc $(PROJ).rpt $(PROJ).bin
 
 ##
 ## Find all of the Verilog dependencies and submodules
@@ -73,3 +72,28 @@ gen_xmove.v: gen_xmove_module.pl moves.txt
 
 moves.txt: gen_moves.pl
 	./gen_moves.pl | sort | uniq > moves.txt
+
+
+## The following are rules to make the TinyFPGA bitstream
+PROJ = TinyFPGA_B2
+PIN_DEF = pins.pcf
+DEVICE = lp8k
+
+.PHONY: bin
+bin: $(PROJ).rpt $(PROJ).bin
+
+%.blif: %.v gen_xmove.v
+	yosys -p 'synth_ice40 -top $(PROJ) -blif $@' $<
+
+%.asc: $(PIN_DEF) %.blif
+	arachne-pnr -d 8k -P cm81 -o $@ -p $^
+
+%.bin: %.asc
+	icepack $< $@
+
+%.rpt: %.asc
+	icetime -d $(DEVICE) -mtr $@ $<
+
+.PHONY: prog
+prog: $(PROJ).bin
+	tinyfpgab --program $<

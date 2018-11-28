@@ -235,6 +235,10 @@ module user(i_clk, o_uart_tx, i_uart_rx,
   reg 	    print_stb;		// Tell the second FSM to start printing
   initial   print_stb = 0;
 
+  // When we are asked to, print out a string
+  reg [2:0] printstate;		// State of the printing FSM below
+  initial   printstate = 0;
+
   always @(posedge i_clk) begin // Update the strings with the board moves
     Str[38] <= square[1];
     Str[42] <= square[2];
@@ -247,8 +251,8 @@ module user(i_clk, o_uart_tx, i_uart_rx,
     Str[92] <= square[9];
   end
 
-  always @(posedge i_clk)	// The main FSM
-    case (state)
+  always @(posedge i_clk) begin
+    case (state)			// The main FSM
       0: if (i_result_stb) begin	// We have a result, print it out
 	   o_busy <= 1;
 	   if (i_isdraw)
@@ -397,20 +401,7 @@ module user(i_clk, o_uart_tx, i_uart_rx,
 
     endcase
 
-
-
-  // Interface to the TX UART
-  reg  [7:0] tx_data;		// Data to send to the UART
-  wire	     tx_busy;		// Is it busy?
-  reg	     tx_stb;		// Strobe to ask to send data
-  initial    tx_stb= 0;
-
-  // When we are asked to, print out a string
-  reg [2:0] printstate;		// State of the printing FSM below
-  initial   printstate = 0;
-
-  always @(posedge i_clk)
-    case (printstate)
+    case (printstate)			// The printing FSM
       // Start printing out a string. Someone else has
       // initialised the tx_index.
       0: if (print_stb) begin
@@ -436,6 +427,15 @@ module user(i_clk, o_uart_tx, i_uart_rx,
 	    printstate <= 1;
 	  end
     endcase
+  end
+
+
+
+  // Interface to the TX UART
+  reg  [7:0] tx_data;		// Data to send to the UART
+  wire	     tx_busy;		// Is it busy?
+  reg	     tx_stb;		// Strobe to ask to send data
+  initial    tx_stb= 0;
 
   // Wire up the transmit and receive serial port modules
   txuartlite #(CLOCKS_PER_BAUD)

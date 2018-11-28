@@ -31,7 +31,9 @@ module ttt(i_clk, o_uart_tx, i_uart_rx);
   parameter CLOCK_RATE_HZ = 1000000;	// System clock rate in Hz
   parameter BAUD_RATE = 115_200;	// 115.2 KBaud
   parameter CLOCKS_PER_BAUD = CLOCK_RATE_HZ/BAUD_RATE;
+`ifdef VERILATOR
   assign o_setup = CLOCKS_PER_BAUD;
+`endif
 
   reg [17:0] board;			// Current board state
   initial board= 18'd0;			// and its initial value
@@ -169,7 +171,7 @@ module ttt(i_clk, o_uart_tx, i_uart_rx);
       end
 
       LOSE_STATE:			// XXX: Should never happen
-	assert(0);
+	state <= INITIALISE_STATE;
 
       DRAW_STATE: begin
 	result_stb <= 1;		// Signal a result
@@ -186,9 +188,9 @@ module ttt(i_clk, o_uart_tx, i_uart_rx);
 	  state <= INITIALISE_STATE;
 
       ERROR_STATE:			// XXX: Should never happen
-	assert(0);
+        state <= INITIALISE_STATE;
 
       default:				// XXX: Should never happen
-	assert(0);
+        state <= INITIALISE_STATE;
     endcase
 endmodule
