@@ -9,16 +9,24 @@
 #include "verilated.h"
 #include "Vttt.h"
 #include "testb.h"
+#include "uartsim.h"
 
 int	main(int argc, char **argv) {
 	Verilated::commandArgs(argc, argv);
 	TESTB<Vttt>	*tb
 		= new TESTB<Vttt>;
+        UARTSIM         *uart;
+        unsigned        baudclocks;
+
+        uart = new UARTSIM();
+        baudclocks = tb->m_core->o_setup;
+        uart->setup(baudclocks);
 
 	tb->opentrace("ttt.vcd");
 
-	for(unsigned clocks=0; clocks < 200; clocks++) {
+	for (unsigned clocks=0; clocks < 20000000; clocks++) {
 		tb->tick();
+		tb->m_core->i_uart_rx = (*uart)(tb->m_core->o_uart_tx);
 	}
 	printf("\n\nSimulation complete\n");
 }

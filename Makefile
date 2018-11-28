@@ -1,5 +1,5 @@
 .PHONY: all
-.DELETE_ON_ERROR:
+#.DELETE_ON_ERROR:
 TOPMOD  := ttt
 VLOGFIL := $(TOPMOD).v
 VCDFILE := $(TOPMOD).vcd
@@ -8,6 +8,7 @@ RPTFILE := $(TOPMOD).rpt
 BINFILE := $(TOPMOD).bin
 SIMFILE := $(SIMPROG).cpp
 VDIRFB  := ./obj_dir
+COSIMS  := uartsim.cpp
 all: $(VCDFILE)
 
 GCC := g++

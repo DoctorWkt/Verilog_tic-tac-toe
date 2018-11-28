@@ -7,8 +7,31 @@
 `include "gen_xmove.v"
 `include "movemask.v"
 
-module ttt(i_clk);
+`ifdef VERILATOR
+
+module ttt(i_clk, o_setup, o_uart_tx, i_uart_rx);
+  // Set up the clocks per baud
+
   input wire i_clk;
+  // Let our Verilator .cpp file know what parameter was selected for
+  // the baud rate
+  output wire [31:0] o_setup;
+  output wire o_uart_tx;    // UART transmit signal line
+  input  wire i_uart_rx;    // UART receive signal line
+
+`else
+
+module ttt(i_clk, o_uart_tx, i_uart_rx);
+  input wire i_clk;
+  output wire o_uart_tx;    // UART transmit signal line
+  input  wire i_uart_rx;    // UART receive signal line
+
+`endif
+
+  parameter CLOCK_RATE_HZ = 1000000;	// System clock rate in Hz
+  parameter BAUD_RATE = 115_200;	// 115.2 KBaud
+  parameter CLOCKS_PER_BAUD = CLOCK_RATE_HZ/BAUD_RATE;
+  assign o_setup = CLOCKS_PER_BAUD;
 
   reg [17:0] board;			// Current board state
   initial board= 18'd0;			// and its initial value
@@ -24,6 +47,8 @@ module ttt(i_clk);
   localparam MAKE_X_MOVE      = 5'h5;	
   localparam CHECK_X_MOVE     = 5'h6;	
   localparam FOO              = 5'h7;	// XXX get rid of it soon
+  localparam WAIT_FOR_USER    = 5'h1a;
+  localparam WAIT_FOR_USER2   = 5'h1b;
   localparam WIN_STATE        = 5'h1c;	
   localparam LOSE_STATE       = 5'h1d;	
   localparam DRAW_STATE       = 5'h1e;	
@@ -62,7 +87,8 @@ module ttt(i_clk);
   wire isdraw;				// The game is a draw
 
   // Wire up the user interface module
-  user u1(i_clk, board, result, isdraw, result_stb,
+  user #(CLOCKS_PER_BAUD[23:0])
+       u1(i_clk, o_uart_tx, i_uart_rx, board, result, isdraw, result_stb,
           need_userinput, user_busy, user_move, usermove_stb);
 
   // Wire up the X move module
@@ -139,7 +165,7 @@ module ttt(i_clk);
 					// eventually be discarded.
       WIN_STATE: begin
 	result_stb <= 1;		// Signal a result
-	state <= INITIALISE_STATE;
+	state <= WAIT_FOR_USER;		// Start drawing the board
       end
 
       LOSE_STATE:			// XXX: Should never happen
@@ -147,8 +173,17 @@ module ttt(i_clk);
 
       DRAW_STATE: begin
 	result_stb <= 1;		// Signal a result
-	state <= INITIALISE_STATE;
+	state <= WAIT_FOR_USER;		// Start drawing the board
       end
+
+      WAIT_FOR_USER: begin
+	result_stb <= 0;
+	state <= WAIT_FOR_USER2;	// Takes a tick for user_busy
+      end
+
+      WAIT_FOR_USER2:
+	if (!user_busy)			// Wait for the display to be done
+	  state <= INITIALISE_STATE;
 
       ERROR_STATE:			// XXX: Should never happen
 	assert(0);
