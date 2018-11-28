@@ -15,6 +15,6 @@ The top-level module is ```ttt.v``` which is basically a large FSM
 that gets a user move, validates it, updates the board, passes the board
 to ```gen_xmove.v``` to get the X move, updates the board, and loops back.
 
-The ```user.v``` module deals with user input and output. Right now I'm using
-$display and $fgetc, but eventually I will add a UART module, and change this
-to have a FSM to send strings, and to read characters from the UART.
+The ```user.v``` module deals with user input and output. At present it is
+using the simulated UART written by Dan Gisselquist. Hopefully soon I will
+be able to synthesise this for a real FPGA.
