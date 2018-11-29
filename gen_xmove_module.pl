@@ -9,7 +9,6 @@ module xmove(i_board, o_move);
   input wire [17:0] i_board;
   output reg [3:0]  o_move;
 
-  // Win, lose and next X move logic
   always @(*) 
     case (i_board)
 EOF1

@@ -125,11 +125,16 @@ module ttt(i_clk, o_uart_tx, i_uart_rx);
 	if (bad_user_move)		// Move was out of range, go back
 	  state <= ASK_USER_MOVE;
 	else begin			// Otherwise update board with move
-	oldboard <= board;			// Take a copy of the board
+	  oldboard <= board;			// Take a copy of the board
 	  board <= board | user_move_mask;	// Apply the user's move
 	  state <= CHECK_USER_MOVE;
 	end
       end
+					// Note: if a user move (01) ORs
+					// over the top of itself, or an
+					// existing X (11) move, the board
+					// won't change. Hence the
+					// board == oldboard test will be true
 
       CHECK_USER_MOVE: begin
 	if (board == oldboard)		// User's move didn't change the

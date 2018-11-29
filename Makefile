@@ -68,9 +68,11 @@ endif
 # Generate the xmove.v module by
 # calculating the best X moves
 xmove.v: gen_xmove_module.pl moves.txt
+	chmod +x gen_xmove_module.pl
 	./gen_xmove_module.pl > xmove.v
 
 moves.txt: gen_moves.pl
+	chmod +x gen_moves.pl
 	./gen_moves.pl | sort | uniq > moves.txt
 
 
