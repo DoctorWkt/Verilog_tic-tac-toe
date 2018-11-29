@@ -85,7 +85,7 @@ DEVICE = lp8k
 bin: $(PROJ).rpt $(PROJ).bin
 
 %.blif: %.v xmove.v
-	yosys -p 'synth_ice40 -top $(PROJ) -blif $@' $<
+	yosys -q -p 'synth_ice40 -top $(PROJ) -blif $@' $<
 
 %.asc: $(PIN_DEF) %.blif
 	arachne-pnr -d 8k -P cm81 -o $@ -p $^
