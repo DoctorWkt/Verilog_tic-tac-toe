@@ -1,8 +1,8 @@
 # Verilog Tic Tac Toe
 
-This is an implementation of "Tic Tac Toe" in Verilog. The user plays against
-the FPGA. The FPGA knows what is the best next move, and should always win
-or draw against the user.
+This is an implementation of "Tic Tac Toe" (noughts and crosses) in Verilog.
+The user plays against the FPGA. The FPGA knows what is the best next move,
+and should always win or draw against the user.
 
 The ```gen_moves.pl``` works out the best X moves for each board state,
 producing a ```moves.txt``` file. The ```gen_xmove_module.pl``` script

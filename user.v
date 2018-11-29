@@ -1,3 +1,8 @@
+// Code to communicate board state and game
+// state to user, and to get their moves.
+// Author: Warren Toomey
+// (c) 2018, Warren Toomey, GPL3
+
 `default_nettype none
 
 `ifndef	VERILATOR
@@ -6,40 +11,29 @@
 `endif
 
 module user(i_clk, o_uart_tx, i_uart_rx,
-	i_board, i_result, i_isdraw,
-        i_result_stb, i_needinput, o_busy,
-        o_move, o_validmove_stb
+	i_board, i_result, i_result_stb, i_needinput,
+	o_busy, o_move, o_validmove_stb
 );
 
   parameter CLOCKS_PER_BAUD = 24'd868;	// # of clocks per UART baud clock
 
   input wire i_clk;             // Global clock
   input wire [17:0] i_board;    // State of the game board
-  input wire [1:0] i_result;    // If non-zero, game result (win/lose)
-  input wire  i_isdraw;         // If non-zero, was a draw
+  input wire [1:0] i_result;    // If non-zero, game result (win/lose/draw)
   input wire  i_result_stb;     // If non-zero, above 2 are valid
   input wire  i_needinput;      // If non-zero, top level needs input
   output reg o_busy;            // If non-zero, we are busy, ignore i_needinput
-/* verilator lint_off UNDRIVEN */
   output reg [3:0] o_move;      // Move made by user, when o_validmove_stb
-/* verilator lint_on UNDRIVEN */
-  output reg o_validmove_stb;   // is high the move is valid
+  output reg o_validmove_stb;   // If high, the move is valid
   output  wire    o_uart_tx;	// UART transmit signal line
   input   wire    i_uart_rx;	// UART receive signal line
 
   initial o_busy=1;		// We are busy to start with and
   initial o_validmove_stb=0;	// We don't have a valid move
 
-  // Set up the clocks per baud
-  // parameter	INITIAL_UART_SETUP = (CLOCK_RATE_HZ/BAUD_RATE);
-
-  // 
-  // RECEIVE SECTION
-  //
-
-/* verilator lint_off UNUSED */
-  wire [7:0] rx_data;          	// Each char typed by user
-/* verilator lint_on UNUSED */
+  /* verilator lint_off UNUSED */
+  wire [7:0] rx_data;          	// Each char typed by user, not all bits used
+  /* verilator lint_on UNUSED */
   wire rx_avail;		// If true, user data is available
 
   // List of available strings
@@ -222,20 +216,18 @@ module user(i_clk, o_uart_tx, i_uart_rx,
   assign square[9] = (i_board[1:0]== 2'b00)   ? " " :
                      (i_board[1:0]== 2'b01)   ? "O" : "X";
 
-  // 
-  // TRANSMIT SECTION
-  //
-
+  localparam NONE = 0;		// Meaning of the i_result value
   localparam XWIN = 1;
   localparam OWIN = 2;
+  localparam DRAW = 3;
 
-  reg [7:0] tx_index;		// Current char posn being printed
   reg [7:0] state;		// Current state of the main FSM here
   initial   state = 26;
   reg 	    print_stb;		// Tell the second FSM to start printing
   initial   print_stb = 0;
 
   // When we are asked to, print out a string
+  reg [7:0] tx_index;		// Current char posn being printed
   reg [2:0] printstate;		// State of the printing FSM below
   initial   printstate = 0;
 
@@ -255,7 +247,7 @@ module user(i_clk, o_uart_tx, i_uart_rx,
     case (state)			// The main FSM
       0: if (i_result_stb) begin	// We have a result, print it out
 	   o_busy <= 1;
-	   if (i_isdraw)
+	   if (i_result==DRAW)
 	     state <= 1;
 	   else if (i_result==XWIN)
 	     state <= 7;
@@ -428,8 +420,6 @@ module user(i_clk, o_uart_tx, i_uart_rx,
 	  end
     endcase
   end
-
-
 
   // Interface to the TX UART
   reg  [7:0] tx_data;		// Data to send to the UART

@@ -27,7 +27,7 @@ VERILATOR_ROOT ?= $(shell bash -c '$(VERILATOR) -V|grep VERILATOR_ROOT | head -1
 ## The directory containing the verilator includes
 VINC := $(VERILATOR_ROOT)/include
 
-$(VDIRFB)/V$(TOPMOD).cpp: $(TOPMOD).v gen_xmove.v movemask.v user.v
+$(VDIRFB)/V$(TOPMOD).cpp: $(TOPMOD).v xmove.v movemask.v user.v
 	$(VERILATOR) $(VFLAGS) -cc --top-module $(TOPMOD) $(VLOGFIL)
 
 $(VDIRFB)/V$(TOPMOD)__ALL.a: $(VDIRFB)/V$(TOPMOD).cpp
@@ -47,7 +47,7 @@ $(VCDFILE): $(SIMPROG)
 .PHONY: clean
 clean:
 	rm -rf $(VDIRFB)/ $(SIMPROG) $(VCDFILE) ttt/ 
-	rm -f moves.txt gen_xmove.v
+	rm -f moves.txt xmove.v
 	rm -f $(PROJ).blif $(PROJ).asc $(PROJ).rpt $(PROJ).bin
 
 ##
@@ -65,10 +65,10 @@ include $(DEPS)
 endif
 endif
 
-# Generate the gen_xmove.v module by
+# Generate the xmove.v module by
 # calculating the best X moves
-gen_xmove.v: gen_xmove_module.pl moves.txt
-	./gen_xmove_module.pl > gen_xmove.v
+xmove.v: gen_xmove_module.pl moves.txt
+	./gen_xmove_module.pl > xmove.v
 
 moves.txt: gen_moves.pl
 	./gen_moves.pl | sort | uniq > moves.txt
@@ -82,7 +82,7 @@ DEVICE = lp8k
 .PHONY: bin
 bin: $(PROJ).rpt $(PROJ).bin
 
-%.blif: %.v gen_xmove.v
+%.blif: %.v xmove.v
 	yosys -p 'synth_ice40 -top $(PROJ) -blif $@' $<
 
 %.asc: $(PIN_DEF) %.blif
