@@ -10,7 +10,7 @@ uses this to create the ```xmove.v``` module.
 
 The top-level module is ```ttt.v``` which is basically a large FSM
 that gets a user move, validates it, updates the board, passes the board
-to ```gen_xmove.v``` to get the X move, updates the board, and loops back.
+to ```xmove.v``` to get the X move, updates the board, and loops back.
 
 The ```user.v``` module deals with user input and output. It uses the
 UART modules written by Dan Gisselquist.
