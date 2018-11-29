@@ -16,5 +16,4 @@ The ```user.v``` module deals with user input and output. It uses the
 UART modules written by Dan Gisselquist.
 
 The project can be simulated on Verilator, and it now synthesises and runs
-on my TinyFPGA B2. At present the win detection code isn't working, which 
-I suspect is because I'm using casez.
+on my TinyFPGA B2.
