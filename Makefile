@@ -1,3 +1,6 @@
+##
+## Verilator Rules
+##
 .PHONY: all
 #.DELETE_ON_ERROR:
 TOPMOD  := ttt
@@ -49,6 +52,7 @@ clean:
 	rm -rf $(VDIRFB)/ $(SIMPROG) $(VCDFILE) ttt/ 
 	rm -f moves.txt xmove.v
 	rm -f $(PROJ).blif $(PROJ).asc $(PROJ).rpt $(PROJ).bin
+	rm -rf ULX3S_45F.json ulx3s_out.config ulx3s.bit
 
 ##
 ## Find all of the Verilog dependencies and submodules
@@ -76,7 +80,9 @@ moves.txt: gen_moves.pl
 	./gen_moves.pl | sort | uniq > moves.txt
 
 
+##
 ## The following are rules to make the TinyFPGA bitstream
+##
 PROJ = TinyFPGA_B2
 PIN_DEF = pins.pcf
 DEVICE = lp8k
@@ -99,3 +105,20 @@ bin: $(PROJ).rpt $(PROJ).bin
 .PHONY: prog
 prog: $(PROJ).bin
 	tinyfpgab --program $<
+
+##
+## Rules to make the bitstream for the ULX3S board with an ECP5 45F FPGA
+
+ulx3s.bit: ulx3s_out.config
+	ecppack ulx3s_out.config ulx3s.bit
+
+ulx3s_out.config: ULX3S_45F.json
+	nextpnr-ecp5 --45k --json ULX3S_45F.json --basecfg ulx3s_empty.config \
+		--lpf ulx3s_v20.lpf \
+		--textcfg ulx3s_out.config
+
+ULX3S_45F.json: ULX3S_45F.ys ULX3S_45F.v xmove.v
+	yosys ULX3S_45F.ys
+
+uprog: ulx3s.bit
+	sudo ~wkt/.bin/ujprog *.bit

@@ -22,4 +22,6 @@ The ```movemask.v``` converts a user's move in decimal into a bit pattern
 which can be ORed onto the 18-bit board state.
 
 The project can be simulated in Verilator, and it now synthesises and runs
-on my TinyFPGA B2.
+on my TinyFPGA B2 and ULX3S FPGA boards. Note for the ULX3S: you need to
+disable hardware flow control on the serial connection to the board.
+With _minicom_, ctrl-A O, Serial port setup, F, Exit.

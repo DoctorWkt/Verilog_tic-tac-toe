@@ -1,0 +1,2 @@
+read_verilog ULX3S_45F.v
+synth_ecp5 -noccu2 -nomux -nodram -json ULX3S_45F.json
