@@ -25,3 +25,14 @@ The project can be simulated in Verilator, and it now synthesises and runs
 on my TinyFPGA B2 and ULX3S FPGA boards. Note for the ULX3S: you need to
 disable hardware flow control on the serial connection to the board.
 With _minicom_, ctrl-A O, Serial port setup, F, Exit.
+
+## ULX3S HDMI Version
+
+In the _HDMI_ folder you will find a version of the code with HDMI display
+for the ULX3S board. This was contributed by
+[emard](https://github.com/emard/). There is still a serial port user
+interface, but the board is also shown as nine coloured squares on the
+HDMI output.
+
+Note: the squares are renumbered to to reflect the numeric keypad on
+most PC keyboards: top row is 7, 8, 9; bottom row is 1, 2, 3.
